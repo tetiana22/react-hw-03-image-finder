@@ -9,9 +9,6 @@ import { Loader } from "./Loader/Loader";
 import { ModalImg } from "./Modal/Modal"
 
 
-
-
-
 export class App extends Component {
   state = {
     textForSearch: '',
@@ -99,14 +96,11 @@ export class App extends Component {
         {status === 'resolved' && ( <ImageGallery pictures={pictures} onOpenModal={this.openModal} />)}
         {status === 'rejected' && <p>{error}</p>}
         {Btn && <Button morePictures={this.addImages} />}
-        {showModal && (
-          
-          <ModalImg closeModal={this.toggleModal}>
-            <img src={urlBig} alt={alt} />
-          </ModalImg>
+        {showModal && ( <ModalImg closeModal={this.toggleModal}>
+                           <img src={urlBig} alt={alt} />
+                       </ModalImg>
         )}
-
-        <ToastContainer autoClose={3000} />
+         <ToastContainer autoClose={3000} />
       </>
     );
   }
