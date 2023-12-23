@@ -1,19 +1,11 @@
-import { GalleryItem } from './ImageGalleryItem.styled';
+import React from 'react';
+import { ImageGallery } from 'components/ImageGalleryItem/ImageGalleryItem';
+
 
 export const ImageGalleryItem = ({ pictures, onOpenModal }) => {
   return (
     <>
-      {pictures &&
-        pictures.map(picture => (
-          <GalleryItem key={picture.webformatURL}>
-            <img
-              src={picture.webformatURL}
-              alt={picture.tags}
-              data-url={picture.largeImageURL}
-              onClick={onOpenModal}
-            />
-          </GalleryItem>
-        ))}
+      <ImageGallery pictures={pictures} onOpenModal={onOpenModal} />
     </>
   );
 };

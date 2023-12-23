@@ -17,8 +17,9 @@ export class App extends Component {
     error: null,
     status: 'idle',
     showModal: false,
-    urlBig: '',
+    largeurl: '',
     alt: '',
+   
   };
 
 
@@ -30,7 +31,8 @@ export class App extends Component {
     async componentDidUpdate(_, prevState) {
       const { textForSearch } = this.state;
   
-      if (prevState.textForSearch !== textForSearch) {
+      if (prevState.textForSearch !== textForSearch ||
+        prevState.page !== this.state.page) {
         this.setState({ status: 'pending' });
   
         try {
@@ -75,7 +77,7 @@ export class App extends Component {
     };
    
   openModal = event => {
-    this.setState({ urlBig: event.target.dataset.url });
+    this.setState({ largeurl: event.target.dataset.url });
     this.toggleModal();
   };
 
@@ -85,7 +87,7 @@ export class App extends Component {
   };
   
   render() {
-    const { status, pictures, error, totalHits, showModal, urlBig, alt } = this.state;
+    const { status, pictures, error, totalHits, showModal, largeurl, alt } = this.state;
     const Btn= status === 'resolved' && totalHits > pictures.length;
     
     return (
@@ -97,7 +99,7 @@ export class App extends Component {
         {status === 'rejected' && <p>{error}</p>}
         {Btn && <Button morePictures={this.addImages} />}
         {showModal && ( <ModalImg closeModal={this.toggleModal}>
-                           <img src={urlBig} alt={alt} />
+                           <img src={largeurl} alt={alt} />
                        </ModalImg>
         )}
          <ToastContainer autoClose={3000} />
