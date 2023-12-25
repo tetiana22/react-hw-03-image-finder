@@ -19,7 +19,7 @@ export class App extends Component {
     showModal: false,
     largeurl: '',
     alt: '',
-   
+    currentPage: 1,
   };
 
 
@@ -28,36 +28,20 @@ export class App extends Component {
       this.setState({ textForSearch: text });
     };
 
-    async componentDidUpdate(_, prevState) {
-      const { textForSearch } = this.state;
-  
-      if (prevState.textForSearch !== textForSearch ||
-        prevState.page !== this.state.page) {
-        this.setState({ status: 'pending' });
-  
-        try {
-          const data = await getImg(textForSearch);
-          const pictures = data.hits;
-          const totalHits = data.totalHits;
-  
-          if (!pictures.length) {
-            this.setState({
-              error: `Зображення ${textForSearch} відсутні`,
-              status: 'rejected',
-            });
-          } else {
-            this.setState({ pictures, status: 'resolved', totalHits });
-          }
-        } catch (error) {
-          this.setState({ error: error.message, status: 'rejected' });
-        }
+    componentDidUpdate(_, prevState) {
+      
+      if (
+        prevState.textForSearch !== this.state.textForSearch ||
+        prevState.currentPage !== this.state.currentPage
+      ) {
+        this.addImages(); 
       }
     }
-    addImages = async page => {
-      const { textForSearch } = this.state;
+    addImages = async() => {
+      const { textForSearch, currentPage } = this.state;
   
       try {
-        const data = await getImg(textForSearch, page);
+        const data = await getImg(textForSearch, currentPage);
         const pictures = data.hits;
   
         if (!pictures.length) {
@@ -86,18 +70,32 @@ export class App extends Component {
     this.setState({ showModal: !this.state.showModal });
   };
   
+  loadMore = () => {
+    this.setState(prevState => ({
+      currentPage: prevState.currentPage + 1,
+    }));
+  };
+  
+  handleSubmit = query => {
+    this.setState({
+      textForSearch: query, 
+      images: [], 
+      currentPage: 1, 
+    });
+  };
+  
   render() {
     const { status, pictures, error, totalHits, showModal, largeurl, alt } = this.state;
     const Btn= status === 'resolved' && totalHits > pictures.length;
     
     return (
       <>
-       <SubmitForm onSubmit={this.getTextForSearch} />
+       <SubmitForm onSubmit={this.handleSubmit} />
 
         {status === 'pending' && <Loader display="centre"/>}
         {status === 'resolved' && ( <ImageGallery pictures={pictures} onOpenModal={this.openModal} />)}
         {status === 'rejected' && <p>{error}</p>}
-        {Btn && <Button morePictures={this.addImages} />}
+        {Btn && <Button morePictures={this.loadMore} />}
         {showModal && ( <ModalImg closeModal={this.toggleModal}>
                            <img src={largeurl} alt={alt} />
                        </ModalImg>

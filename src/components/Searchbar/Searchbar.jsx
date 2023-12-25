@@ -29,7 +29,6 @@ export class SubmitForm extends Component  {
           return toast.warn(`Ви вже переглядаєте ${text}`);
     
         }
-        this.setState({ textForSearch: text, images: [], currentPage: 1 });
         this.props.onSubmit(text);
         this.setState({ text: "" });
       }
