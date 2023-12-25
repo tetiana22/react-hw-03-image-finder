@@ -23,84 +23,85 @@ export class App extends Component {
   };
 
 
-
-    getTextForSearch = text => {
-      this.setState({ textForSearch: text });
-    };
-
-    componentDidUpdate(_, prevState) {
-      
-      if (
-        prevState.textForSearch !== this.state.textForSearch ||
-        prevState.currentPage !== this.state.currentPage
-      ) {
-        this.addImages(); 
-      }
+  getTextForSearch = (text) => {
+    this.setState({ textForSearch: text });
+  };
+  
+  componentDidUpdate(_, prevState) {
+    if (
+      prevState.textForSearch !== this.state.textForSearch ||
+      prevState.currentPage !== this.state.currentPage
+    ) {
+      this.addImages();
     }
-    addImages = async() => {
-      const { textForSearch, currentPage } = this.state;
+  }
   
-      try {
-        const data = await getImg(textForSearch, currentPage);
-        const pictures = data.hits;
+  addImages = async () => {
+    const { textForSearch, currentPage } = this.state;
   
-        if (!pictures.length) {
-          this.setState({
-            error: `Зображення ${textForSearch} відсутні`,
-            status: 'rejected',
-          });
-        } else {
-          this.setState(prevState => ({
-            pictures: [...prevState.pictures, ...pictures],
-            status: 'resolved',
-          }));
-        }
-      } catch (error) {
-        this.setState({ error: error.message, status: 'rejected' });
+    try {
+      const data = await getImg(textForSearch, currentPage);
+      const pictures = data.hits;
+  
+      if (!pictures.length) {
+        this.setState({
+          error: `Зображення ${textForSearch} відсутні`,
+          status: 'rejected',
+        });
+      } else {
+        this.setState((prevState) => ({
+          pictures: [...prevState.pictures, ...pictures],
+          status: 'resolved',
+        }));
       }
-    };
-   
-  openModal = event => {
+    } catch (error) {
+      this.setState({ error: error.message, status: 'rejected' });
+    }
+  };
+  
+  openModal = (event) => {
     this.setState({ largeurl: event.target.dataset.url });
     this.toggleModal();
   };
-
- 
+  
   toggleModal = () => {
-    this.setState({ showModal: !this.state.showModal });
+    this.setState((prevState) => ({ showModal: !prevState.showModal }));
   };
   
   loadMore = () => {
-    this.setState(prevState => ({
-      currentPage: prevState.currentPage + 1,
-    }));
-  };
+    this.setState((prevState) => ({
+      currentPage: prevState.currentPage + 1
+    }), () => {
+      this.addImages();
+    });
+};
   
-  handleSubmit = query => {
+  handleSubmit = (query) => {
     this.setState({
-      textForSearch: query, 
-      images: [], 
-      currentPage: 1, 
+      textForSearch: query,
+      pictures: [],
+      currentPage: 1,
     });
   };
   
   render() {
-    const { status, pictures, error, totalHits, showModal, largeurl, alt } = this.state;
-    const Btn= status === 'resolved' && totalHits > pictures.length;
+    const { status, pictures, error, showModal, largeurl, alt } = this.state;
+    const Btn = status === 'resolved' &&  pictures.length > 0;
     
     return (
       <>
-       <SubmitForm onSubmit={this.handleSubmit} />
-
-        {status === 'pending' && <Loader display="centre"/>}
-        {status === 'resolved' && ( <ImageGallery pictures={pictures} onOpenModal={this.openModal} />)}
+        <SubmitForm onSubmit={this.handleSubmit} />
+  
+        {status === 'pending' && <Loader display="centre" />}
+        {status === 'resolved' && <ImageGallery pictures={pictures} onOpenModal={this.openModal} />}
         {status === 'rejected' && <p>{error}</p>}
-        {Btn && <Button morePictures={this.loadMore} />}
-        {showModal && ( <ModalImg closeModal={this.toggleModal}>
-                           <img src={largeurl} alt={alt} />
-                       </ModalImg>
+        {Btn && <Button loadMore={this.loadMore} />}
+        {showModal && (
+          <ModalImg closeModal={this.toggleModal}>
+            <img src={largeurl} alt={alt} />
+          </ModalImg>
         )}
-         <ToastContainer autoClose={3000} />
+        <ToastContainer autoClose={3000} />
       </>
     );
   }
