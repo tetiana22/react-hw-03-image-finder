@@ -71,17 +71,17 @@ export class App extends Component {
   loadMore = () => {
     this.setState((prevState) => ({
       currentPage: prevState.currentPage + 1
-    }), () => {
-      this.addImages();
-    });
+    }))
 };
   
   handleSubmit = (query) => {
+    if(this.state.textForSearch !== query) {
     this.setState({
       textForSearch: query,
       pictures: [],
       currentPage: 1,
     });
+  }
   };
   
   render() {
